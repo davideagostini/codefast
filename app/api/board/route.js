@@ -23,6 +23,13 @@ export async function POST(req) {
     await connectMongo();
     const user = await User.findById(session.user.id);
 
+    if (!user.hasAccess) {
+      return NextResponse.json(
+        { error: "You need to subscribe to create a board" },
+        { status: 403 }
+      );
+    }
+
     const board = await Board.create({
       userId: user._id,
       name: body.name,
@@ -55,12 +62,20 @@ export async function DELETE(req) {
       return NextResponse.json({ error: "Not authorized" }, { status: 401 });
     }
 
+    const user = await User.findById(session.user.id);
+
+    if (!user.hasAccess) {
+      return NextResponse.json(
+        { error: "You need to subscribe to create a board" },
+        { status: 403 }
+      );
+    }
+
     await Board.deleteOne({
       _id: boardId,
       userId: session?.user?.id,
     });
 
-    const user = await User.findById(session.user.id);
     user.boards = user.boards.filter((id) => id.toString() !== boardId);
     await user.save();
 

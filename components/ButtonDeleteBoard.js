@@ -19,6 +19,8 @@ const ButtonDeleteBoard = ({ boardId }) => {
         toast.success("Board deleted successfully");
 
         router.push("/dashboard");
+
+        router.refresh();
       }
     } catch (error) {
       const errorMessage =
